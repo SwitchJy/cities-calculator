@@ -103,7 +103,7 @@ export default function ResultsPage() {
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
-                社保费用计算结果（佛山市）
+                社保费用计算结果
               </h2>
               <p className="text-sm text-gray-600 mt-1">
                 共 {results.length} 名员工
@@ -180,7 +180,7 @@ export default function ResultsPage() {
         )}
 
         <div className="mt-8 text-center text-sm text-gray-500">
-          <p>提示：缴费基数根据佛山市社保标准确定（当前年份基数范围：1900 - 25000，缴纳比例：15.4%）</p>
+          <p>提示：缴费基数根据所选城市的社保标准确定，不同城市的基数范围和缴纳比例可能不同</p>
         </div>
       </div>
     </div>
