@@ -36,18 +36,19 @@ export default function UploadPage() {
 
   // 获取可用的城市列表
   useEffect(() => {
+    let isMounted = true
     const fetchCities = async () => {
       try {
         const response = await fetch('/api/cities')
         if (response.ok) {
           const data = await response.json()
-          console.log('获取到的城市数据:', data)
-          const uniqueCities = [...new Set(data.map((city: any) => city.city_name).filter(Boolean))] as string[]
-          console.log('处理后的城市列表:', uniqueCities)
-          setAvailableCities(uniqueCities)
-          // 如果有城市数据，默认选择第一个
-          if (uniqueCities.length > 0) {
-            setSelectedCity(uniqueCities[0])
+          if (isMounted) {
+            const uniqueCities = [...new Set(data.map((city: any) => city.city_name).filter(Boolean))] as string[]
+            setAvailableCities(uniqueCities)
+            // 如果有城市数据，默认选择第一个
+            if (uniqueCities.length > 0) {
+              setSelectedCity(uniqueCities[0])
+            }
           }
         } else {
           console.error('获取城市数据失败:', response.status)
@@ -57,6 +58,10 @@ export default function UploadPage() {
       }
     }
     fetchCities()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const handleUpload = async () => {
