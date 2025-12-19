@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -12,6 +12,8 @@ export default function UploadPage() {
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('')
   const [citiesFile, setCitiesFile] = useState<File | null>(null)
   const [salariesFile, setSalariesFile] = useState<File | null>(null)
+  const [selectedCity, setSelectedCity] = useState('佛山')
+  const [availableCities, setAvailableCities] = useState<string[]>(['佛山'])
 
   const showMessage = (msg: string, type: 'success' | 'error') => {
     setMessage(msg)
@@ -31,6 +33,23 @@ export default function UploadPage() {
     const file = e.target.files?.[0]
     setSalariesFile(file || null)
   }
+
+  // 获取可用的城市列表
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const response = await fetch('/api/cities')
+        if (response.ok) {
+          const data = await response.json()
+          const uniqueCities = [...new Set(data.map((city: any) => city.city_name).filter(Boolean))] as string[]
+          setAvailableCities(uniqueCities)
+        }
+      } catch (error) {
+        console.error('Failed to fetch cities:', error)
+      }
+    }
+    fetchCities()
+  }, [])
 
   const handleUpload = async () => {
     if (!citiesFile && !salariesFile) {
@@ -118,7 +137,7 @@ export default function UploadPage() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          cityName: '佛山'  // 当前版本硬编码为佛山
+          cityName: selectedCity  // 使用选中的城市
         })
       })
 
@@ -242,13 +261,30 @@ export default function UploadPage() {
           {/* 执行计算 */}
           <div className="bg-white rounded-lg shadow-md p-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-1">
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">
                   执行计算
                 </h2>
-                <p className="text-sm text-gray-600">
-                  根据上传的数据执行社保费用计算（当前使用佛山市标准）
-                </p>
+                <div className="flex flex-col gap-2">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">选择城市：</label>
+                    <select
+                      value={selectedCity}
+                      onChange={(e) => setSelectedCity(e.target.value)}
+                      className="mt-1 block w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                      disabled={calculating}
+                    >
+                      {availableCities.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    将根据{selectedCity}市的社保标准计算员工社保费用
+                  </p>
+                </div>
               </div>
               <button
                 onClick={handleCalculate}
