@@ -12,8 +12,8 @@ export default function UploadPage() {
   const [messageType, setMessageType] = useState<'success' | 'error' | ''>('')
   const [citiesFile, setCitiesFile] = useState<File | null>(null)
   const [salariesFile, setSalariesFile] = useState<File | null>(null)
-  const [selectedCity, setSelectedCity] = useState('佛山')
-  const [availableCities, setAvailableCities] = useState<string[]>(['佛山'])
+  const [selectedCity, setSelectedCity] = useState('')
+  const [availableCities, setAvailableCities] = useState<string[]>([])
 
   const showMessage = (msg: string, type: 'success' | 'error') => {
     setMessage(msg)
@@ -41,8 +41,16 @@ export default function UploadPage() {
         const response = await fetch('/api/cities')
         if (response.ok) {
           const data = await response.json()
+          console.log('获取到的城市数据:', data)
           const uniqueCities = [...new Set(data.map((city: any) => city.city_name).filter(Boolean))] as string[]
+          console.log('处理后的城市列表:', uniqueCities)
           setAvailableCities(uniqueCities)
+          // 如果有城市数据，默认选择第一个
+          if (uniqueCities.length > 0) {
+            setSelectedCity(uniqueCities[0])
+          }
+        } else {
+          console.error('获取城市数据失败:', response.status)
         }
       } catch (error) {
         console.error('Failed to fetch cities:', error)
